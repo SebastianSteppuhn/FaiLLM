@@ -1,0 +1,9 @@
+{
+  "table": "attacks_20250809_195943",
+  "model": "llama3.1:8b",
+  "base_url": "http://192.168.0.167:11434",
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "timestamp": "2025-08-09T19:59:53"
+}
