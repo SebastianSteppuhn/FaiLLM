@@ -1,0 +1,53 @@
+{
+  "table": "attacks_20250809_230836",
+  "model": "llama3.1:8b",
+  "base_url": "http://192.168.0.167:11434",
+  "passed": 8,
+  "failed": 11,
+  "total": 19,
+  "by_pack": {
+    "core_injections": {
+      "passed": 0,
+      "failed": 4,
+      "total": 4
+    },
+    "malformed_json": {
+      "passed": 2,
+      "failed": 2,
+      "total": 4
+    },
+    "unicode_noise": {
+      "passed": 2,
+      "failed": 0,
+      "total": 2
+    },
+    "html_fragments": {
+      "passed": 0,
+      "failed": 2,
+      "total": 2
+    },
+    "base64_noise": {
+      "passed": 1,
+      "failed": 1,
+      "total": 2
+    },
+    "contradictions": {
+      "passed": 1,
+      "failed": 1,
+      "total": 2
+    },
+    "code_switching": {
+      "passed": 1,
+      "failed": 1,
+      "total": 2
+    },
+    "long_context": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    }
+  },
+  "timestamp": "2025-08-09T23:09:48",
+  "artifact_dir": "artifacts/attacks_20250809_230836",
+  "results_jsonl": "artifacts/attacks_20250809_230836/results.jsonl"
+}

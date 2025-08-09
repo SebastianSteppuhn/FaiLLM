@@ -1,0 +1,23 @@
+{
+  "table": "attacks_20250810_001058",
+  "model": "llama3.1:8b",
+  "base_url": "http://192.168.0.167:11434",
+  "passed": 18,
+  "failed": 0,
+  "total": 18,
+  "by_pack": {
+    "core_injections": {
+      "passed": 12,
+      "failed": 0,
+      "total": 12
+    },
+    "malformed_json": {
+      "passed": 6,
+      "failed": 0,
+      "total": 6
+    }
+  },
+  "timestamp": "2025-08-10T00:12:20",
+  "artifact_dir": "artifacts/attacks_20250810_001058",
+  "results_jsonl": "artifacts/attacks_20250810_001058/results.jsonl"
+}

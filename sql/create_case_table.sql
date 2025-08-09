@@ -4,8 +4,6 @@ CREATE TABLE IF NOT EXISTS cases (
   version INT NOT NULL,
   label TEXT,
   prompt TEXT NOT NULL,
-  expected JSONB,
-  checks JSONB,
   tags TEXT[] DEFAULT '{}',
   props JSONB DEFAULT '{}'::jsonb,
   source JSONB DEFAULT '{}'::jsonb,
