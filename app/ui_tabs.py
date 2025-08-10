@@ -659,7 +659,6 @@ def build_tab_evaluation_metrics():
             fig_fail_pie = _pie_fig(f_counts, "FAIL clusters")
             fig_scatter  = _scatter_fig(proj, p_counts, f_counts)
 
-            _apply_plot_style()
 
             return fig_pass_pie, fig_fail_pie, fig_scatter, md, md
 
