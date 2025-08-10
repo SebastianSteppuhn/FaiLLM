@@ -1,1 +1,0 @@
-INSERT INTO {table} ({fields}) VALUES ({placeholders});

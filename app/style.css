@@ -1,0 +1,28 @@
+
+#refresh-row { gap: 0 !important; }
+
+#refresh-btn { align-self: stretch; }
+#refresh-btn > button {
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  line-height: 1;
+  display: grid; place-items: center;
+  border-left: 0 !important;
+}
+
+#refresh-dd .wrap > * {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+#refresh-btn > button {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.gr-modal { max-width: 95vw !important; }
+#cell-modal textarea {
+  height: 70vh !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  white-space: pre-wrap;
+}
