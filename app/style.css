@@ -26,3 +26,8 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   white-space: pre-wrap;
 }
+
+.scroll-df .wrap {
+  max-height: 420px;
+  overflow: auto;
+}

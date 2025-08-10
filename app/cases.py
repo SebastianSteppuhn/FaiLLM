@@ -1,9 +1,11 @@
+# Utilities for managing adversarial cases in the database.
 from __future__ import annotations
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 from psycopg import sql
 from psycopg.types.json import Json
 from .db import connect, get_table_columns
 
+import re
 
 
 CASES_TABLE = "cases"
@@ -14,6 +16,26 @@ ALLOWED_PACKS = {
 }
 CASE_COL_CANDIDATES = ["id","pack","version","label","prompt","tags","props","source","expected","checks"]
 JSONB_COLS = {"props","source","expected","checks"}
+
+_CTRL_RE = re.compile(r'[\x00-\x08\x0B\x0C\x0E-\x1F]')
+
+def _clean_text(s: str) -> str:
+    if s is None:
+        return s
+    return _CTRL_RE.sub('', s)
+
+def deep_clean(obj):
+    """Recursively clean strings inside lists/tuples/dicts for DB safety."""
+    if obj is None:
+        return None
+    if isinstance(obj, str):
+        return _clean_text(obj)
+    if isinstance(obj, dict):
+        return {deep_clean(k): deep_clean(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        t = [deep_clean(x) for x in obj]
+        return tuple(t) if isinstance(obj, tuple) else t
+    return obj
 
 def set_cases_table(name: str) -> None:
     global CASES_TABLE
@@ -89,12 +111,14 @@ def add_cases(cases: Iterable[Dict[str, Any]]) -> int:
 
         batch = []
         for case in cases:
-            # normalize + adapt values to match column types (text[], jsonb, etc.)
+
             norm = _normalize_for_cols(normalize_case(case), cols)
             row = tuple(_adapt_value(c, norm.get(c)) for c in cols)
             batch.append(row)
 
-        cur.executemany(stmt, batch)
+        sanitized_batch = [tuple(deep_clean(v) for v in row) for row in batch]
+
+        cur.executemany(stmt, sanitized_batch)
         return len(batch)
 
 def fetch_cases(

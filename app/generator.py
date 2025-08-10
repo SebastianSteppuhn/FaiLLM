@@ -1,15 +1,17 @@
+# Case generator for producing edge-case prompts and packs.
 from __future__ import annotations
 import json, time
-from typing import Any, Dict, List, Tuple
-from .ollama_client import OllamaClient
+from typing import Any, Dict, List, Tuple, Optional
+from .llm_client import LLMClient
 from .cases import add_cases, is_valid_case, normalize_case
 
-def generate_cases(prompt_text: str, base_url: str, model: str, temperature: float, timeout: int,
-                   batches: int, sleep_sec: float) -> Tuple[int, int, List[str]]:
+def generate_cases(*, prompt_text, base_url, model, temperature, timeout, batches, sleep_sec,
+                   provider: str = "ollama", api_key: Optional[str] = None):
     logs: List[str] = []
     total_kept = 0
     total_errors = 0
-    client = OllamaClient(base_url=base_url, model=model, temperature=temperature, timeout=timeout)
+    client = LLMClient(provider=provider, model=model, temperature=temperature,
+                       timeout=timeout, base_url=base_url, api_key=api_key)
     for b in range(1, int(batches)+1):
         res = client.chat(prompt_text)
         if not res.get("ok"):

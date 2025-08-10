@@ -1,3 +1,4 @@
+# Low-level Postgres helpers and safe SQL builders.
 import re
 from typing import Any, Dict, List
 import psycopg
@@ -40,7 +41,7 @@ def load_sql(filename: str) -> str:
 
 def get_table_columns(conn: psycopg.Connection, table: str) -> List[str]:
     q = sql.SQL(load_sql("get_table_columns.sql")).format(
-    table_name=sql.Literal(table)  
+    table_name=sql.Literal(table)
     )
     with conn.cursor() as cur:
         cur.execute(q) 

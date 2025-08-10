@@ -1,3 +1,4 @@
+# Static configuration and environment defaults.
 import os
 from dotenv import load_dotenv
 

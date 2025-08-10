@@ -1,3 +1,4 @@
+# Tools to evaluate model outputs and classify results.
 from __future__ import annotations
 import json, time
 from typing import Dict, Any, List, Optional, Tuple
@@ -5,7 +6,7 @@ from psycopg import sql
 import pandas as pd
 
 from .db import connect
-from .ollama_client import OllamaClient
+from .llm_client import LLMClient
 from .cases import get_cases_table
 
 
@@ -104,10 +105,10 @@ def _build_eval_prompt(rubric: str, prompt: str, output: str,
 {output}
 
 Return JSON only."""
-    
+
 def evaluate_run_table(
     run_table: str,
-    base_url: str,
+    base_url: Optional[str],
     model: str,
     rubric: Optional[str] = None,
     system: Optional[str] = None,
@@ -115,11 +116,18 @@ def evaluate_run_table(
     timeout: int = 120,
     limit: Optional[int] = None,
     batch_sleep: float = 0.15,
+    provider: str = "ollama",
+    api_key: Optional[str] = None,
+    reasoning_effort: Optional[str] = None,
 ) -> Tuple[str, pd.DataFrame, Dict[str, Any]]:
     """
-    Evaluate each row in <run_table> with an evaluator LLM and write results to
+    Evaluate each row in <run_table> with an evaluator LLM (Ollama or OpenAI) and write results to
     a new table named eval_<run_table>.
     Returns: (eval_table, df_preview, summary_dict)
+
+    Notes:
+      - For provider="openai", pass base_url=None (client will use the official API).
+      - For provider="ollama", pass your Ollama base_url (e.g., http://localhost:11434).
     """
     eval_table = f"eval_{run_table}"
     _create_eval_table(eval_table)
@@ -128,7 +136,15 @@ def evaluate_run_table(
     if not rows:
         return eval_table, pd.DataFrame(), {"table": eval_table, "total": 0, "passed": 0, "failed": 0}
 
-    client = OllamaClient(base_url=base_url, model=model, temperature=temperature, timeout=timeout)
+    client = LLMClient(
+        provider=provider or "ollama",
+        model=model,
+        temperature=temperature,
+        timeout=timeout,
+        base_url=base_url,
+        api_key=api_key,
+        reasoning_effort=reasoning_effort,
+    )
     used_rubric = rubric.strip() if rubric and rubric.strip() else DEFAULT_RUBRIC
 
     eval_rows: List[Dict[str, Any]] = []
@@ -153,17 +169,22 @@ def evaluate_run_table(
         if raw:
             try:
                 cleaned = raw.strip()
+
                 if cleaned.startswith("```"):
-                    cleaned = cleaned.strip("`")
+
+                    cleaned = cleaned.strip().lstrip("`")
+
                     idx = cleaned.find("{")
                     cleaned = cleaned[idx:] if idx >= 0 else cleaned
                 decision = json.loads(cleaned)
-                # sanitize
+
                 decision["pass"] = bool(decision.get("pass"))
                 decision["score"] = int(decision.get("score", 0))
                 decision["reason"] = str(decision.get("reason", ""))[:500]
             except Exception:
-                error = (error or "") + f" | eval-parse-failed: {raw[:200]}"
+
+                preview = raw[:200].replace("\n", " ")
+                error = (error or "") + f" | eval-parse-failed: {preview}"
 
         passed += int(decision["pass"])
         failed += int(not decision["pass"])
@@ -194,5 +215,11 @@ def evaluate_run_table(
         "reason": er["reason"][:140],
     } for er in eval_rows]
     df = pd.DataFrame(preview)
-    summary = {"table": eval_table, "total": len(eval_rows), "passed": passed, "failed": failed, "pass_rate": round(100*passed/max(1,len(eval_rows)),1)}
+    summary = {
+        "table": eval_table,
+        "total": len(eval_rows),
+        "passed": passed,
+        "failed": failed,
+        "pass_rate": round(100 * passed / max(1, len(eval_rows)), 1),
+    }
     return eval_table, df, summary
