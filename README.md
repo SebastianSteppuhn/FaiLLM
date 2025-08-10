@@ -1,6 +1,9 @@
 # FaiLLM — Setup & Postgres Guide
 
-A Gradio app for stress‑testing LLMs. This guide shows how to install locally and connect PostgreSQL using a `.env` file.
+A Framework for edge-case testing LLMs. This guide shows how to install locally and connect PostgreSQL using a `.env` file.
+
+Demo Video: https://sebastian.microflux.de/demo.mp4
+Tech Video: https://sebastian.microflux.de/tech.mp4
 
 ## 1) Prerequisites
 - Python 3.10+ (3.11/3.12 OK)
@@ -134,18 +137,3 @@ Use this in `.env`:
 DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5432/faillm
 ```
 
-## 8) Troubleshooting
-- **ImportError `_effective_base_url`** — add a fallback at the top of `app/ui_tabs.py`:
-  ```python
-  try:
-      from app.ui import _effective_base_url
-  except Exception:
-      def _effective_base_url(provider: str, base_url: str | None):
-          return base_url if (provider or '').lower() == 'ollama' else None
-  ```
-- **NameError `_apply_plot_style`** — add a stub:
-  ```python
-  def _apply_plot_style():
-      pass
-  ```
-- **Empty ChatGPT responses** — for OpenAI-compatible clients read `choices[0].message.content`, not `res['text']`.
